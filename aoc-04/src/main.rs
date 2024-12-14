@@ -80,8 +80,45 @@ fn p1() -> usize {
 }
 
 fn p2() -> i32 {
-    let _input = std::fs::read_to_string("input.txt").unwrap();
-    0
+    let input = std::fs::read_to_string("input.txt").unwrap();
+    let chars: Vec<char> = input.lines().fold(vec![], |mut acc, line| {
+        line.chars().for_each(|c| {
+            acc.push(c);
+        });
+        acc
+    });
+
+    let width = input.lines().last().unwrap().len();
+
+    let a_indices: Vec<usize> = chars
+        .iter()
+        .enumerate()
+        .filter(|(_, &c)| c == 'A')
+        .map(|(i, _)| i)
+        .filter(|&i| {
+            i >= width && i % width >= 1 && i % width < width - 1 && i < width * (width - 1)
+        })
+        .collect();
+
+    let mut xmas_score = 0;
+
+    for idx in a_indices {
+        let x = idx % width;
+        let y = idx / width;
+
+        let nw = (x - 1) + (y - 1) * width;
+        let ne = (x + 1) + (y - 1) * width;
+        let se = (x + 1) + (y + 1) * width;
+        let sw = (x - 1) + (y + 1) * width;
+
+        if (chars[nw] == 'M' && chars[se] == 'S') || (chars[nw] == 'S' && chars[se] == 'M') {
+            if (chars[sw] == 'M' && chars[ne] == 'S') || (chars[sw] == 'S' && chars[ne] == 'M') {
+                xmas_score += 1;
+            }
+        }
+    }
+
+    xmas_score
 }
 
 fn main() {
